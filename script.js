@@ -8,16 +8,14 @@ function searchMp3Links() {
         return;
     }
 
-    const query = encodeURIComponent(`${songTitle} filetype:mp3`);
-    const searchUrl = `https://www.google.com/search?q=${query}`;
+    const searchUrl = `https://downloads.khinsider.com/search?search=${encodeURIComponent(songTitle)}`;
 
-    // Fetch search results (using a CORS proxy to circumvent CORS restrictions)
-    fetch(`https://cors-anywhere.herokuapp.com/${searchUrl}`)
+    fetch(searchUrl)
         .then(response => response.text())
         .then(html => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            const links = doc.querySelectorAll('a');
+            const links = doc.querySelectorAll('.playlistDownloadSong a');
 
             links.forEach(link => {
                 const url = link.href;
@@ -32,6 +30,12 @@ function searchMp3Links() {
             if (resultsDiv.innerHTML === '') {
                 resultsDiv.innerHTML = '<p>No MP3 links found.</p>';
             }
+        })
+        .catch(error => {
+            resultsDiv.innerHTML = '<p>Error fetching search results.</p>';
+            console.error('Error:', error);
+        });
+}
         })
         .catch(error => {
             resultsDiv.innerHTML = '<p>Error fetching search results.</p>';
